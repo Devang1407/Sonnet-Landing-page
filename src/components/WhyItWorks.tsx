@@ -29,7 +29,7 @@ export default function WhyItWorks() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16 md:mb-24">
           <h2 className="text-4xl md:text-5xl font-semibold text-sonnet-navy tracking-tight">
-            Why Sonnet Sleep + Calm Stands Out Among Sleep Supplements
+            Why Sleep + Calm Stands Out Among Sleep Supplements
           </h2>
           <p className="text-lg text-sonnet-navy/70">
             A precise formulation built on modern neuroscience and clinical research — not another generic supplement for sleep.

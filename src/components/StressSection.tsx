@@ -36,7 +36,7 @@ export default function StressSection() {
             <div className="w-16 h-16 bg-sonnet-navy/5 rounded-2xl mb-8 flex items-center justify-center group-hover:bg-sonnet-navy transition-colors duration-300">
               <HeartPulse className="w-7 h-7 text-sonnet-navy group-hover:text-sonnet-cream transition-colors" />
             </div>
-            <h3 className="text-2xl font-bold text-sonnet-navy mb-4">Stress Support That Fits Everyday Life</h3>
+            <h3 className="text-2xl font-bold text-sonnet-navy mb-4">Supplements to Help Sleep and Reduce Stress</h3>
             <p className="text-sonnet-navy/70 text-base leading-relaxed font-medium">
               Clinically-studied Sensoril® Ashwagandha lowers cortisol levels, while L-Theanine promotes alpha brain waves for relaxation. Together they create a calming pre-sleep ritual that fits seamlessly into demanding schedules and travel.
             </p>

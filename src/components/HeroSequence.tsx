@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Star, Check, Minus, Plus } from "lucide-react";
+import Link from "next/link";
+import { Star, Check } from "lucide-react";
 
 const FRAME_COUNT = 137;
 const FRAME_PREFIX = "/assets/hero-sequence/ezgif-frame-";
@@ -42,7 +43,6 @@ export default function HeroSequence() {
   const [selectedFormula, setSelectedFormula] = useState("sleep-calm");
   const [selectedContainer, setSelectedContainer] = useState("bottle");
   const [selectedPlan, setSelectedPlan] = useState("subscribe");
-  const [quantity, setQuantity] = useState(1);
   const [tickerPaused, setTickerPaused] = useState(false);
 
   const getFrameSrc = (i: number) => `${FRAME_PREFIX}${(i + 1).toString().padStart(3, "0")}.jpg`;
@@ -136,8 +136,29 @@ export default function HeroSequence() {
     if (!isLoaded) return;
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
-    return () => { window.removeEventListener("resize", resizeCanvas); cancelAnimationFrame(rafRef.current); };
-  }, [isLoaded, resizeCanvas]);
+
+    // Auto-play via Intersection Observer for mobile (triggers once when entering view)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            playForward();
+            // Disconnect after first play so we don't keep triggering it while scrolling
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.3 } // Triggers when 30% of the hero is visible
+    );
+
+    if (containerRef.current) observer.observe(containerRef.current);
+
+    return () => { 
+      window.removeEventListener("resize", resizeCanvas); 
+      cancelAnimationFrame(rafRef.current); 
+      observer.disconnect();
+    };
+  }, [isLoaded, resizeCanvas, playForward]);
 
   return (
     <section className="w-full bg-sonnet-navy border-b border-sonnet-navy">
@@ -194,48 +215,31 @@ export default function HeroSequence() {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 py-10 flex justify-end min-h-[85vh] items-center">
           <div className="w-full md:w-[420px] lg:w-[460px] flex flex-col space-y-5 pointer-events-auto">
 
-            {/* Title + Stars */}
+            {/* Title + Campaign Line */}
             <div>
-              <h1 className="text-xs font-bold text-amber-400/80 uppercase tracking-[0.2em] mb-2">Sleep Supplements for Busy Minds</h1>
-              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Sleep + Calm</h2>
-              <div className="flex items-center gap-3 mt-2">
+              <span className="text-xs font-bold text-white/90 uppercase tracking-[0.2em] mb-1.5 block">Sleep Made Simple</span>
+              <h1 className="text-sm font-extrabold text-amber-400 uppercase tracking-wider mb-1">Sleep Supplements for busy minds</h1>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-2">Sleep + Calm</h2>
+              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-0.5 text-amber-400">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                 </div>
-                <span className="text-sm text-white/70 font-medium">257 Reviews</span>
+                <span className="text-sm text-white font-semibold border-l border-white/30 pl-3">257 Reviews</span>
               </div>
             </div>
 
-            {/* Highly Rated */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-white/50 font-medium">✨ Highly rated for:</span>
-              {["Calmness", "Sleep & Calm", "Dream Quality"].map((t) => (
-                <span key={t} className="text-xs font-semibold text-white bg-white/10 px-2.5 py-1 rounded-full border border-white/15">{t}</span>
-              ))}
-            </div>
-
             {/* Description */}
-            <p className="text-sm text-white/70 leading-relaxed">
-              Sleep + Calm takes our core formulation and adds L-Theanine to reduce everyday stress and promote a more relaxed state.
+            <p className="text-[15px] font-medium text-white/95 leading-relaxed mt-2">
+              Science-backed sleep support that helps you fall asleep easier, stay asleep longer, and wake up refreshed without grogginess or habit-forming ingredients.
             </p>
 
-            {/* Trust Checks */}
-            <div className="flex items-center gap-5 text-sm font-semibold text-white">
-              {["Safe", "Effective", "Tailored"].map((t) => (
-                <div key={t} className="flex items-center gap-1.5">
-                  <Check className="w-4 h-4" strokeWidth={3} />
-                  <span>{t}</span>
-                </div>
-              ))}
-            </div>
-
             {/* Formula */}
-            <div>
-              <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">Formula: Sleep + Calm</span>
+            <div className="pt-2">
+              <span className="text-[11px] font-bold text-white/80 uppercase tracking-wider mb-2 block">Formula: Sleep + Calm</span>
               <div className="flex items-center gap-2">
                 {[{ id: "core-sleep", l: "Core Sleep" }, { id: "sleep-calm", l: "Sleep + Calm" }, { id: "sleep-restore", l: "Sleep + Restore" }].map((f) => (
                   <button key={f.id} onClick={() => setSelectedFormula(f.id)}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg border-2 transition-all ${selectedFormula === f.id ? "border-white bg-white text-sonnet-navy" : "border-white/20 text-white hover:border-white/40"}`}>
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${selectedFormula === f.id ? "border-white bg-white text-sonnet-navy" : "border-white/40 text-white hover:border-white/60 hover:bg-white/5"}`}>
                     {f.l}
                   </button>
                 ))}
@@ -244,74 +248,66 @@ export default function HeroSequence() {
 
             {/* Container */}
             <div>
-              <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-1.5 block">Container: {selectedContainer === "bottle" ? "Bottle" : "Pouch"}</span>
+              <span className="text-[11px] font-bold text-white/80 uppercase tracking-wider mb-2 block">Container: {selectedContainer === "bottle" ? "Bottle" : "Pouch"}</span>
               <div className="flex items-center gap-2">
                 {[{ id: "bottle", l: "Bottle" }, { id: "pouch", l: "Pouch" }].map((c) => (
                   <button key={c.id} onClick={() => setSelectedContainer(c.id)}
-                    className={`px-4 py-1.5 text-xs font-semibold rounded-lg border-2 transition-all ${selectedContainer === c.id ? "border-white bg-white text-sonnet-navy" : "border-white/20 text-white hover:border-white/40"}`}>
+                    className={`px-4 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${selectedContainer === c.id ? "border-white bg-white text-sonnet-navy" : "border-white/40 text-white hover:border-white/60 hover:bg-white/5"}`}>
                     {c.l}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Pricing */}
-            <div className="space-y-2">
+            {/* Pricing Options */}
+            <div className="space-y-2 pt-2">
               <button onClick={() => setSelectedPlan("subscribe")}
-                className={`w-full flex items-start gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${selectedPlan === "subscribe" ? "border-amber-400 bg-white/10" : "border-white/15 hover:border-white/25"}`}>
-                <div className={`w-4 h-4 mt-0.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedPlan === "subscribe" ? "border-amber-400 bg-amber-400" : "border-white/30"}`}>
+                className={`w-full flex items-start gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${selectedPlan === "subscribe" ? "border-amber-400 bg-white/10" : "border-white/20 hover:border-white/40 hover:bg-white/5"}`}>
+                <div className={`w-4 h-4 mt-0.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedPlan === "subscribe" ? "border-amber-400 bg-amber-400" : "border-white/40"}`}>
                   {selectedPlan === "subscribe" && <Check className="w-2.5 h-2.5 text-sonnet-navy" strokeWidth={3} />}
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-bold text-white text-sm">Subscribe &amp; Save 10%</span>
-                    <div><span className="text-xs text-white/40 line-through mr-1.5">$39.99</span><span className="font-bold text-amber-400">$35.99</span></div>
+                  <div className="flex items-baseline justify-between mb-1">
+                    <span className="font-extrabold text-white text-[15px]">Subscribe & Save 10%</span>
+                    <div><span className="text-xs text-white/60 line-through mr-1.5 font-medium">$39.99</span><span className="font-extrabold text-[#FFC83D] text-[15px]">$35.99</span></div>
                   </div>
-                  <ul className="text-[11px] text-white/50 mt-1 space-y-0">
-                    <li>• Free shipping · Risk-free first 30 days · Cancel anytime</li>
+                  <ul className="text-xs font-medium text-white/80 space-y-1">
+                    <li>• Free shipping</li>
+                    <li>• Risk-free first 30 days</li>
+                    <li>• Cancel anytime</li>
                   </ul>
                 </div>
               </button>
 
               <button onClick={() => setSelectedPlan("onetime")}
-                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${selectedPlan === "onetime" ? "border-amber-400 bg-white/10" : "border-white/15 hover:border-white/25"}`}>
-                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedPlan === "onetime" ? "border-amber-400 bg-amber-400" : "border-white/30"}`}>
+                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${selectedPlan === "onetime" ? "border-amber-400 bg-white/10" : "border-white/20 hover:border-white/40 hover:bg-white/5"}`}>
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedPlan === "onetime" ? "border-amber-400 bg-amber-400" : "border-white/40"}`}>
                   {selectedPlan === "onetime" && <Check className="w-2.5 h-2.5 text-sonnet-navy" strokeWidth={3} />}
                 </div>
                 <div className="flex-1 flex items-center justify-between">
-                  <span className="font-bold text-white text-sm">One Time Purchase</span>
-                  <span className="font-bold text-white">$39.99</span>
+                  <span className="font-extrabold text-white text-[15px]">One Time Purchase</span>
+                  <span className="font-extrabold text-white text-[15px]">$39.99</span>
                 </div>
               </button>
             </div>
 
-            {/* Quantity + Add to Bag */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center border-2 border-white/20 rounded-xl overflow-hidden">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-2.5 py-2.5 hover:bg-white/10 transition-colors"><Minus className="w-3.5 h-3.5 text-white" /></button>
-                <span className="px-3 py-2.5 text-sm font-bold text-white min-w-[36px] text-center">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="px-2.5 py-2.5 hover:bg-white/10 transition-colors"><Plus className="w-3.5 h-3.5 text-white" /></button>
+            {/* Primary CTA */}
+            <div className="pt-2 pb-1">
+              <Link href="#purchase" className="block w-full text-center py-4 bg-amber-400 text-sonnet-navy rounded-xl text-[17px] font-extrabold tracking-wide hover:bg-amber-300 transition-colors shadow-lg shadow-amber-400/20">
+                Start Sleeping Better
+              </Link>
+              <div className="flex justify-center mt-3 text-xs font-bold text-white/80 tracking-wide uppercase text-center">
+                Non habit-forming • Drug-free • Expert-designed
               </div>
-              <button className="flex-1 py-3 bg-amber-400 text-sonnet-navy rounded-xl text-sm font-bold tracking-wide hover:bg-amber-300 transition-colors shadow-lg shadow-amber-400/20">
-                Add to Bag
-              </button>
             </div>
 
             {/* Bottom Trust */}
-            <div className="flex items-center gap-3 text-[11px] text-white/50 font-medium">
-              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-amber-400" strokeWidth={2.5} /><span className="text-amber-400 font-bold whitespace-nowrap">Free Shipping</span> on orders $30+</span>
-              <span className="flex items-center gap-1"><Check className="w-3 h-3 text-amber-400" strokeWidth={2.5} /><span className="text-amber-400 font-bold whitespace-nowrap">Money back Guarantee</span></span>
+            <div className="flex items-center gap-4 text-xs text-white/80 font-semibold mt-2">
+              <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-amber-400" strokeWidth={3} /><span className="text-amber-400 font-extrabold whitespace-nowrap">Free Shipping</span> on orders $30+</span>
+              <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-amber-400" strokeWidth={3} /><span className="text-amber-400 font-extrabold whitespace-nowrap">Money back Guarantee</span></span>
             </div>
 
-            {/* ═══ PRESS CARDS (below pricing) ═══ */}
-            <div className="grid grid-cols-2 gap-2 pt-2">
-              {pressCards.map((p, i) => (
-                <div key={i} className="bg-white/5 rounded-xl px-3 py-3 border border-white/10 text-center">
-                  <span className={`block text-white text-sm ${p.style}`}>{p.source}</span>
-                  <p className="text-[10px] text-white/40 mt-1 leading-snug font-medium">{p.quote}</p>
-                </div>
-              ))}
-            </div>
+
 
           </div>
         </div>

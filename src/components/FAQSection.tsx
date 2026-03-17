@@ -43,7 +43,7 @@ export default function FAQSection() {
         
         <div className="md:w-1/3">
           <h2 className="text-3xl md:text-4xl font-semibold text-sonnet-navy tracking-tight sticky top-24 leading-tight">
-            FAQ: What Supplements Help With Sleep?
+            FAQ About Sleep Supplements
           </h2>
         </div>
 

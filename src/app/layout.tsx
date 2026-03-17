@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Sleep Supplements for Busy Minds | Sonnet Sleep + Calm",
-  description: "Discover sleep supplements for busy minds. Sonnet Sleep + Calm is a science-backed, non habit-forming sleep supplement designed to support relaxation, everyday stress relief, and better sleep without grogginess.",
+  title: "Sleep Supplements | Sonnet Sleep + Calm",
+  description: "Discover sleep supplements designed for busy minds. Sonnet Sleep + Calm is a science-backed, non habit-forming sleep supplement that supports relaxation, everyday stress relief, and better sleep without grogginess.",
 };
 
 export default function RootLayout({

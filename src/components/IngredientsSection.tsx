@@ -31,7 +31,7 @@ export default function IngredientsSection() {
         <div className="flex flex-col md:flex-row gap-12 justify-between items-start md:items-end">
           <div className="max-w-2xl space-y-6">
             <h2 className="text-4xl md:text-5xl font-semibold text-sonnet-navy tracking-tight leading-tight">
-              Science-Backed Ingredients in Our Sleep Supplement
+              Science-Backed Ingredients in This Sleep Supplement
             </h2>
             <p className="text-lg md:text-xl text-sonnet-navy/70 leading-relaxed max-w-lg font-medium">
               We sourced the highest-quality bioavailable compounds to work synergistically. No fillers, no melatonin — just exactly what your body needs to wind down.
